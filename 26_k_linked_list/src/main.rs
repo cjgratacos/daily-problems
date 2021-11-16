@@ -1,3 +1,4 @@
+use std::iter::IntoIterator;
 use std::sync::{Arc, Mutex};
 
 fn main() {}
@@ -25,6 +26,7 @@ impl<T> Node<T> {
 pub struct LinkedList<T> {
     pub head: Link<T>,
     pub tail: Link<T>,
+    pub size: usize,
 }
 
 impl<T> LinkedList<T> {
@@ -32,6 +34,7 @@ impl<T> LinkedList<T> {
         Self {
             head: None,
             tail: None,
+            size: 0,
         }
     }
 
@@ -52,16 +55,60 @@ impl<T> LinkedList<T> {
             }
         }
 
+        self.size += 1;
         self.tail = Some(new_tail);
     }
+
     pub fn pop(&mut self) -> Link<T> {
-        match &self.tail {
-            Some(tail) => todo!(),
-            None => todo!(),
+        self.head.take().map(|head| {
+            {
+                let head_unlocked = head.lock().unwrap();
+                match &head_unlocked.next {
+                    Some(next) => {
+                        let _ = std::mem::replace(&mut self.head, Some(next.clone()));
+                    }
+                    None => {
+                        self.head = None;
+                    }
+                }
+            }
+
+            if self.head.is_none() {
+                self.tail = None;
+            }
+
+            self.size -= 1;
+            head
+        })
+    }
+
+    pub fn removeKthReverse(&mut self, k: usize) -> Link<T> {
+        if k > self.size {
+            return None;
         }
+
+        todo!();
     }
 }
 
+impl<T> IntoIterator for LinkedList<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let mut vec = vec![];
+
+        if self.head.is_some() {
+            let next = self.head.as_ref().unwrap();
+            loop {
+                let next_lock = next.lock().unwrap();
+                vec.push(next_lock.data);
+            }
+        }
+
+        vec.i
+    }
+}
 #[test]
 fn test() {
     let mut list: LinkedList<usize> = LinkedList::new();
