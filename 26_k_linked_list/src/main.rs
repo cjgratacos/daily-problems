@@ -62,32 +62,20 @@ impl<T> LinkedList<T> {
     pub fn pop(&mut self) -> Link<T> {
         self.head.take().map(|head| {
             {
-                let head_unlocked = head.lock().unwrap();
-                match &head_unlocked.next {
+                let head_lock = head.lock().unwrap();
+                match &head_lock.next {
                     Some(next) => {
                         let _ = std::mem::replace(&mut self.head, Some(next.clone()));
                     }
                     None => {
                         self.head = None;
+                        self.tail = None;
                     }
                 }
             }
 
-            if self.head.is_none() {
-                self.tail = None;
-            }
-
-            self.size -= 1;
             head
         })
-    }
-
-    pub fn removeKthReverse(&mut self, k: usize) -> Link<T> {
-        if k > self.size {
-            return None;
-        }
-
-        todo!();
     }
 }
 
@@ -115,7 +103,19 @@ fn test() {
     list.push(0);
     list.push(1);
     list.push(2);
-    println!("{:#?}", list);
-    println!("{:p}", list.head.as_ref().unwrap());
+    loop {
+        let node = list.pop();
+
+        if node.is_none() {
+            break;
+        }
+
+        let n = node.as_ref().unwrap().lock().unwrap();
+        println!("{}:{:p}", &n.data, &n.data);
+        println!("n:{:p}", &n);
+        println!("next:{:p}", &n.next);
+        println!("prev:{:p}", &n.prev);
+    }
+
     assert_eq!(1 == 2, true);
 }
