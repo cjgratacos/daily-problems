@@ -1,3 +1,6 @@
-fn main() {
-    println!("Hello, world!");
-}
+fn main() {}
+
+fn arbitrage() {}
+
+#[test]
+fn test() {}

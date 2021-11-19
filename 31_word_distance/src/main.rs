@@ -34,4 +34,5 @@ fn test() {
     assert_eq!(levenshtein_substitution("", "") == 0, true);
     assert_eq!(levenshtein_substitution("test", "") == 4, true);
     assert_eq!(levenshtein_substitution("", "test") == 4, true);
+    assert_eq!(levenshtein_substitution("Saturday", "Sunday") == 3, true);
 }
